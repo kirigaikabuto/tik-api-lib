@@ -16,5 +16,5 @@ type TokenDetails struct {
 
 type AccessDetails struct {
 	AccessUuid string
-	UserId     int
+	UserId     string
 }

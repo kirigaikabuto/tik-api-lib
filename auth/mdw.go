@@ -9,7 +9,6 @@ import (
 	"github.com/go-redis/redis"
 	"net/http"
 	"os"
-	"strconv"
 	"strings"
 )
 
@@ -72,10 +71,7 @@ func (m *Middleware) ExtractTokenMetadata(r *http.Request) (*AccessDetails, erro
 		if !ok {
 			return nil, errors.New("not access uuid")
 		}
-		userId, err := strconv.Atoi(fmt.Sprintf("%.f", claims["user_id"]))
-		if err != nil {
-			return nil, err
-		}
+		userId := claims["user_id"].(string)
 		_, err = m.tokenStore.GetToken(accessUuid)
 		if err != nil {
 			return nil, err

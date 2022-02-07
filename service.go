@@ -50,7 +50,7 @@ func (s *service) Register(cmd *RegisterCommand) (*tik_lib.User, error) {
 	}
 
 	_, err := s.amqpRequests.GetUserByPhoneNumber(&tik_lib.GetUserByPhoneNumberCommand{PhoneNumber: cmd.PhoneNumber})
-	if err != nil && err != tik_lib.ErrUserNotFound {
+	if err != nil && err.Error() != tik_lib.ErrUserNotFound.Error() {
 		return nil, err
 	} else if err == nil {
 		return nil, ErrUserAlreadyExistByPhone

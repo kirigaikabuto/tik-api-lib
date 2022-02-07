@@ -8,6 +8,11 @@ import (
 
 const (
 	getUserByPhoneNumber = "user.getByPhoneNumber"
+	createFile           = "file.create"
+	getFileByID          = "file.getById"
+	updateFile           = "file.update"
+	deleteFile           = "file.delete"
+	listFiles            = "file.list"
 )
 
 type AmqpRequests struct {
@@ -33,4 +38,84 @@ func (a *AmqpRequests) GetUserByPhoneNumber(cmd *tik_lib.GetUserByPhoneNumberCom
 		return nil, err
 	}
 	return user, nil
+}
+
+func (a *AmqpRequests) CreateFile(cmd *tik_lib.CreateFileCommand) (*tik_lib.File, error) {
+	file := &tik_lib.File{}
+	jsonData, err := json.Marshal(cmd)
+	if err != nil {
+		return nil, err
+	}
+	resp, err := a.clt.Call(createFile, amqp.Message{Body: jsonData})
+	if err != nil {
+		return nil, err
+	}
+	err = json.Unmarshal(resp.Body, &file)
+	if err != nil {
+		return nil, err
+	}
+	return file, nil
+}
+
+func (a *AmqpRequests) UpdateFile(cmd *tik_lib.UpdateFileCommand) (*tik_lib.File, error) {
+	file := &tik_lib.File{}
+	jsonData, err := json.Marshal(cmd)
+	if err != nil {
+		return nil, err
+	}
+	resp, err := a.clt.Call(updateFile, amqp.Message{Body: jsonData})
+	if err != nil {
+		return nil, err
+	}
+	err = json.Unmarshal(resp.Body, &file)
+	if err != nil {
+		return nil, err
+	}
+	return file, nil
+}
+
+func (a *AmqpRequests) GetFileById(cmd *tik_lib.GetFileByIdCommand) (*tik_lib.File, error) {
+	file := &tik_lib.File{}
+	jsonData, err := json.Marshal(cmd)
+	if err != nil {
+		return nil, err
+	}
+	resp, err := a.clt.Call(getFileByID, amqp.Message{Body: jsonData})
+	if err != nil {
+		return nil, err
+	}
+	err = json.Unmarshal(resp.Body, &file)
+	if err != nil {
+		return nil, err
+	}
+	return file, nil
+}
+
+func (a *AmqpRequests) ListFiles(cmd *tik_lib.ListFilesCommand) ([]tik_lib.File, error) {
+	var files []tik_lib.File
+	jsonData, err := json.Marshal(cmd)
+	if err != nil {
+		return nil, err
+	}
+	resp, err := a.clt.Call(listFiles, amqp.Message{Body: jsonData})
+	if err != nil {
+		return nil, err
+	}
+	err = json.Unmarshal(resp.Body, &files)
+	if err != nil {
+		return nil, err
+	}
+	return files, nil
+}
+
+func (a *AmqpRequests) DeleteFile(cmd *tik_lib.DeleteFileCommand) error {
+	jsonData, err := json.Marshal(cmd)
+	if err != nil {
+		return err
+	}
+	_, err = a.clt.Call(deleteFile, amqp.Message{Body: jsonData})
+	if err != nil {
+		return err
+	}
+	return nil
 }

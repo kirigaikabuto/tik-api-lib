@@ -12,7 +12,15 @@ type service struct {
 }
 
 type Service interface {
+	//user
 	Login(cmd *LoginCommand) (*auth.TokenDetails, error)
+
+	//files
+	CreateFile(cmd *CreateFileCommand) (*tik_lib.File, error)
+	UpdateFile(cmd *UpdateFileCommand) (*tik_lib.File, error)
+	GetFileById(cmd *GetFileByIdCommand) (*tik_lib.File, error)
+	ListFiles(cmd *ListFilesCommand) ([]tik_lib.File, error)
+	DeleteFile(cmd *DeleteFileCommand) error
 }
 
 func NewService(amqpRequests AmqpRequests, tknStore auth.TokenStore) Service {
@@ -32,4 +40,24 @@ func (s *service) Login(cmd *LoginCommand) (*auth.TokenDetails, error) {
 		return nil, err
 	}
 	return token, nil
+}
+
+func (s *service) CreateFile(cmd *CreateFileCommand) (*tik_lib.File, error) {
+	return s.amqpRequests.CreateFile(&tik_lib.CreateFileCommand{File: &cmd.File})
+}
+
+func (s *service) UpdateFile(cmd *UpdateFileCommand) (*tik_lib.File, error) {
+	return s.amqpRequests.UpdateFile(&tik_lib.UpdateFileCommand{FileUpdate: &cmd.FileUpdate})
+}
+
+func (s *service) GetFileById(cmd *GetFileByIdCommand) (*tik_lib.File, error) {
+	return s.amqpRequests.GetFileById(&tik_lib.GetFileByIdCommand{Id: cmd.Id})
+}
+
+func (s *service) ListFiles(cmd *ListFilesCommand) ([]tik_lib.File, error) {
+	return s.amqpRequests.ListFiles(&tik_lib.ListFilesCommand{})
+}
+
+func (s *service) DeleteFile(cmd *DeleteFileCommand) error {
+	return s.amqpRequests.DeleteFile(&tik_lib.DeleteFileCommand{Id: cmd.Id})
 }

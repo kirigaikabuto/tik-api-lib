@@ -28,11 +28,7 @@ func NewAmqpRequests(clt amqp.Client) AmqpRequests {
 
 func (a *AmqpRequests) GetUserByPhoneNumber(cmd *tik_lib.GetUserByPhoneNumberCommand) (*tik_lib.User, error) {
 	user := &tik_lib.User{}
-	jsonData, err := json.Marshal(cmd)
-	if err != nil {
-		return nil, err
-	}
-	err = setdata_common.AmqpCall(a.clt, getUserByPhoneNumber, jsonData, &user)
+	err := setdata_common.AmqpCall(a.clt, getUserByPhoneNumber, cmd, &user)
 	if err != nil {
 		return nil, err
 	}

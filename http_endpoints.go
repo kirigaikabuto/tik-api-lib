@@ -193,14 +193,22 @@ func (h *httpEndpoints) MakeDeleteFileEndpoint() gin.HandlerFunc {
 func (h *httpEndpoints) MakeUploadFileEndpoint() gin.HandlerFunc {
 	return func(context *gin.Context) {
 		cmd := &UploadFileCommand{}
+		fileId := context.Request.URL.Query().Get("id")
+		if fileId == "" {
+			respondJSON(context.Writer, http.StatusBadRequest, setdata_common.ErrToHttpResponse(ErrFileIdNotProvided))
+			return
+		}
+		cmd.Id = fileId
 		buf := bytes.NewBuffer(nil)
 		file, header, err := context.Request.FormFile("file")
 		if err != nil {
 			respondJSON(context.Writer, http.StatusBadRequest, setdata_common.ErrToHttpResponse(err))
 			return
 		}
-		name := strings.Split(header.Filename, ".")
-		fmt.Printf("File name %s\n", name[0])
+		fileInfo := strings.Split(header.Filename, ".")
+		fmt.Printf("File name %s\n", fileInfo[0])
+		cmd.Name = fileInfo[0]
+		cmd.Type = fileInfo[1]
 		_, err = io.Copy(buf, file)
 		if err != nil {
 			respondJSON(context.Writer, http.StatusBadRequest, setdata_common.ErrToHttpResponse(err))
@@ -217,6 +225,7 @@ func (h *httpEndpoints) MakeUploadFileEndpoint() gin.HandlerFunc {
 			respondJSON(context.Writer, http.StatusBadRequest, setdata_common.ErrToHttpResponse(err))
 			return
 		}
+		fmt.Println(cmd)
 		respondJSON(context.Writer, http.StatusOK, resp)
 	}
 }

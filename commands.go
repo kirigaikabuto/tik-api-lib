@@ -69,6 +69,8 @@ func (cmd *DeleteFileCommand) Exec(svc interface{}) (interface{}, error) {
 type UploadFileCommand struct {
 	Id   string        `json:"id"`
 	File *bytes.Buffer `json:"file" form:"file"`
+	Name string        `json:"-"`
+	Type string        `json:"-"`
 }
 
 func (cmd *UploadFileCommand) Exec(svc interface{}) (interface{}, error) {

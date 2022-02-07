@@ -11,6 +11,7 @@ import (
 
 type HttpEndpoints interface {
 	MakeLoginEndpoint() gin.HandlerFunc
+	MakeRegisterEndpoint() gin.HandlerFunc
 
 	MakeCreateFileEndpoint() gin.HandlerFunc
 	MakeListFilesEndpoint() gin.HandlerFunc
@@ -41,6 +42,23 @@ func (h *httpEndpoints) MakeLoginEndpoint() gin.HandlerFunc {
 			return
 		}
 		respondJSON(context.Writer, http.StatusOK, resp)
+	}
+}
+
+func (h *httpEndpoints) MakeRegisterEndpoint() gin.HandlerFunc {
+	return func(context *gin.Context) {
+		cmd := &RegisterCommand{}
+		err := context.ShouldBindJSON(&cmd)
+		if err != nil {
+			respondJSON(context.Writer, http.StatusBadRequest, setdata_common.ErrToHttpResponse(err))
+			return
+		}
+		resp, err := h.ch.ExecCommand(cmd)
+		if err != nil {
+			respondJSON(context.Writer, http.StatusBadRequest, setdata_common.ErrToHttpResponse(err))
+			return
+		}
+		respondJSON(context.Writer, http.StatusCreated, resp)
 	}
 }
 
@@ -97,7 +115,7 @@ func (h *httpEndpoints) MakeGetFileByIdEndpoint() gin.HandlerFunc {
 		}
 		cmd.UserId = userIdVal.(string)
 		fileId := context.Request.URL.Query().Get("id")
-		if fileId == ""{
+		if fileId == "" {
 			respondJSON(context.Writer, http.StatusBadRequest, setdata_common.ErrToHttpResponse(ErrFileIdNotProvided))
 			return
 		}
@@ -122,7 +140,7 @@ func (h *httpEndpoints) MakeUpdateFileEndpoint() gin.HandlerFunc {
 		}
 		cmd.UserId = userIdVal.(string)
 		fileId := context.Request.URL.Query().Get("id")
-		if fileId == ""{
+		if fileId == "" {
 			respondJSON(context.Writer, http.StatusBadRequest, setdata_common.ErrToHttpResponse(ErrFileIdNotProvided))
 			return
 		}
@@ -152,7 +170,7 @@ func (h *httpEndpoints) MakeDeleteFileEndpoint() gin.HandlerFunc {
 		}
 		cmd.UserId = userIdVal.(string)
 		fileId := context.Request.URL.Query().Get("id")
-		if fileId == ""{
+		if fileId == "" {
 			respondJSON(context.Writer, http.StatusBadRequest, setdata_common.ErrToHttpResponse(ErrFileIdNotProvided))
 			return
 		}

@@ -8,11 +8,13 @@ import (
 
 const (
 	getUserByPhoneNumber = "user.getByPhoneNumber"
-	createFile           = "file.create"
-	getFileByID          = "file.getById"
-	updateFile           = "file.update"
-	deleteFile           = "file.delete"
-	listFiles            = "file.list"
+	createUser           = "user.create"
+
+	createFile  = "file.create"
+	getFileByID = "file.getById"
+	updateFile  = "file.update"
+	deleteFile  = "file.delete"
+	listFiles   = "file.list"
 )
 
 type AmqpRequests struct {
@@ -30,6 +32,23 @@ func (a *AmqpRequests) GetUserByPhoneNumber(cmd *tik_lib.GetUserByPhoneNumberCom
 		return nil, err
 	}
 	resp, err := a.clt.Call(getUserByPhoneNumber, amqp.Message{Body: jsonData})
+	if err != nil {
+		return nil, err
+	}
+	err = json.Unmarshal(resp.Body, &user)
+	if err != nil {
+		return nil, err
+	}
+	return user, nil
+}
+
+func (a *AmqpRequests) CreateUser(cmd *tik_lib.CreateUserCommand) (*tik_lib.User, error) {
+	user := &tik_lib.User{}
+	jsonData, err := json.Marshal(cmd)
+	if err != nil {
+		return nil, err
+	}
+	resp, err := a.clt.Call(createUser, amqp.Message{Body: jsonData})
 	if err != nil {
 		return nil, err
 	}

@@ -11,6 +11,14 @@ func (cmd *LoginCommand) Exec(svc interface{}) (interface{}, error) {
 	return svc.(Service).Login(cmd)
 }
 
+type RegisterCommand struct {
+	tik_lib.User
+}
+
+func (cmd *RegisterCommand) Exec(svc interface{}) (interface{}, error) {
+	return svc.(Service).Register(cmd)
+}
+
 type CreateFileCommand struct {
 	tik_lib.File
 	UserId string `json:"-"`

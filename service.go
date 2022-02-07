@@ -14,7 +14,7 @@ type service struct {
 type Service interface {
 	//user
 	Login(cmd *LoginCommand) (*auth.TokenDetails, error)
-
+	Register(cmd *RegisterCommand) (*tik_lib.User, error)
 	//files
 	CreateFile(cmd *CreateFileCommand) (*tik_lib.File, error)
 	UpdateFile(cmd *UpdateFileCommand) (*tik_lib.File, error)
@@ -40,6 +40,24 @@ func (s *service) Login(cmd *LoginCommand) (*auth.TokenDetails, error) {
 		return nil, err
 	}
 	return token, nil
+}
+
+func (s *service) Register(cmd *RegisterCommand) (*tik_lib.User, error) {
+	if cmd.PhoneNumber == "" {
+		return nil, ErrPhoneNumberNotProvided
+	} else if cmd.Password == "" {
+		return nil, ErrPasswordNotProvided
+	}
+
+	_, err := s.amqpRequests.GetUserByPhoneNumber(&tik_lib.GetUserByPhoneNumberCommand{PhoneNumber: cmd.PhoneNumber})
+	if err == nil {
+		return nil, ErrUserAlreadyExistByPhone
+	}
+	cmd.Password, err = setdata_common.HashPassword(cmd.Password)
+	if err != nil {
+		return nil, err
+	}
+	return s.amqpRequests.CreateUser(&tik_lib.CreateUserCommand{User: &cmd.User})
 }
 
 func (s *service) CreateFile(cmd *CreateFileCommand) (*tik_lib.File, error) {

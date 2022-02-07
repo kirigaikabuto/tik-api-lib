@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/djumanoff/amqp"
+	setdata_common "github.com/kirigaikabuto/setdata-common"
 	tik_lib "github.com/kirigaikabuto/tik-lib"
 )
 
@@ -33,8 +34,8 @@ func (a *AmqpRequests) GetUserByPhoneNumber(cmd *tik_lib.GetUserByPhoneNumberCom
 		return nil, err
 	}
 	resp, err := a.clt.Call(getUserByPhoneNumber, amqp.Message{Body: jsonData})
-	fmt.Println(err)
-	if err != nil {
+	fmt.Println(err.(setdata_common.MiddleError))
+	if err == nil {
 		return nil, err
 	}
 	err = json.Unmarshal(resp.Body, &user)

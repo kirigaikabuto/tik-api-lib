@@ -76,11 +76,6 @@ func (h *httpEndpoints) MakeListFilesEndpoint() gin.HandlerFunc {
 		}
 		cmd.UserId = userIdVal.(string)
 		fmt.Println(cmd.UserId)
-		err := context.ShouldBindJSON(&cmd)
-		if err != nil {
-			respondJSON(context.Writer, http.StatusBadRequest, setdata_common.ErrToHttpResponse(err))
-			return
-		}
 		resp, err := h.ch.ExecCommand(cmd)
 		if err != nil {
 			respondJSON(context.Writer, http.StatusBadRequest, setdata_common.ErrToHttpResponse(err))
@@ -121,6 +116,11 @@ func (h *httpEndpoints) MakeUpdateFileEndpoint() gin.HandlerFunc {
 		cmd.Id = fileId
 		cmd.UserId = userIdVal.(string)
 		fmt.Println(cmd.UserId)
+		err := context.ShouldBindJSON(&cmd)
+		if err != nil {
+			respondJSON(context.Writer, http.StatusBadRequest, setdata_common.ErrToHttpResponse(err))
+			return
+		}
 		resp, err := h.ch.ExecCommand(cmd)
 		if err != nil {
 			respondJSON(context.Writer, http.StatusBadRequest, setdata_common.ErrToHttpResponse(err))

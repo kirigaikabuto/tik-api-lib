@@ -11,10 +11,12 @@ import (
 
 type HttpEndpoints interface {
 	MakeLoginEndpoint() gin.HandlerFunc
+
 	MakeCreateFileEndpoint() gin.HandlerFunc
 	MakeListFilesEndpoint() gin.HandlerFunc
 	MakeGetFileByIdEndpoint() gin.HandlerFunc
 	MakeUpdateFileEndpoint() gin.HandlerFunc
+	MakeDeleteFileEndpoint() gin.HandlerFunc
 }
 
 type httpEndpoints struct {
@@ -94,6 +96,12 @@ func (h *httpEndpoints) MakeGetFileByIdEndpoint() gin.HandlerFunc {
 			return
 		}
 		cmd.UserId = userIdVal.(string)
+		fileId := context.Request.URL.Query().Get("id")
+		if fileId == ""{
+			respondJSON(context.Writer, http.StatusBadRequest, setdata_common.ErrToHttpResponse(ErrFileIdNotProvided))
+			return
+		}
+		cmd.Id = fileId
 		fmt.Println(cmd.UserId)
 		resp, err := h.ch.ExecCommand(cmd)
 		if err != nil {
@@ -112,15 +120,45 @@ func (h *httpEndpoints) MakeUpdateFileEndpoint() gin.HandlerFunc {
 			respondJSON(context.Writer, http.StatusBadRequest, setdata_common.ErrToHttpResponse(errors.New("no user id in context")))
 			return
 		}
-		fileId := context.Request.URL.Query().Get("id")
-		cmd.Id = fileId
 		cmd.UserId = userIdVal.(string)
+		fileId := context.Request.URL.Query().Get("id")
+		if fileId == ""{
+			respondJSON(context.Writer, http.StatusBadRequest, setdata_common.ErrToHttpResponse(ErrFileIdNotProvided))
+			return
+		}
+		cmd.Id = fileId
 		fmt.Println(cmd.UserId)
 		err := context.ShouldBindJSON(&cmd)
 		if err != nil {
 			respondJSON(context.Writer, http.StatusBadRequest, setdata_common.ErrToHttpResponse(err))
 			return
 		}
+		resp, err := h.ch.ExecCommand(cmd)
+		if err != nil {
+			respondJSON(context.Writer, http.StatusBadRequest, setdata_common.ErrToHttpResponse(err))
+			return
+		}
+		respondJSON(context.Writer, http.StatusOK, resp)
+	}
+}
+
+func (h *httpEndpoints) MakeDeleteFileEndpoint() gin.HandlerFunc {
+	return func(context *gin.Context) {
+		cmd := &DeleteFileCommand{}
+		userIdVal, ok := context.Get("user_id")
+		if !ok {
+			respondJSON(context.Writer, http.StatusBadRequest, setdata_common.ErrToHttpResponse(errors.New("no user id in context")))
+			return
+		}
+		cmd.UserId = userIdVal.(string)
+		fileId := context.Request.URL.Query().Get("id")
+		if fileId == ""{
+			respondJSON(context.Writer, http.StatusBadRequest, setdata_common.ErrToHttpResponse(ErrFileIdNotProvided))
+			return
+		}
+		cmd.Id = fileId
+
+		fmt.Println(cmd.UserId)
 		resp, err := h.ch.ExecCommand(cmd)
 		if err != nil {
 			respondJSON(context.Writer, http.StatusBadRequest, setdata_common.ErrToHttpResponse(err))

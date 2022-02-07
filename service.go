@@ -43,10 +43,24 @@ func (s *service) Login(cmd *LoginCommand) (*auth.TokenDetails, error) {
 }
 
 func (s *service) CreateFile(cmd *CreateFileCommand) (*tik_lib.File, error) {
+	if cmd.FileType != "" {
+		if !tik_lib.IsFileTypeExist(cmd.FileType.ToString()) {
+			return nil, ErrFileTypeError
+		}
+	} else {
+
+	}
 	return s.amqpRequests.CreateFile(&tik_lib.CreateFileCommand{File: &cmd.File})
 }
 
 func (s *service) UpdateFile(cmd *UpdateFileCommand) (*tik_lib.File, error) {
+	if *cmd.FileType != "" {
+		if !tik_lib.IsFileTypeExist(cmd.FileType.ToString()) {
+			return nil, ErrFileTypeError
+		}
+	} else {
+
+	}
 	return s.amqpRequests.UpdateFile(&tik_lib.UpdateFileCommand{FileUpdate: &cmd.FileUpdate})
 }
 

@@ -4,6 +4,8 @@ import (
 	setdata_common "github.com/kirigaikabuto/setdata-common"
 	"github.com/kirigaikabuto/tik-api-lib/auth"
 	tik_lib "github.com/kirigaikabuto/tik-lib"
+	"io/ioutil"
+	"os"
 )
 
 type service struct {
@@ -99,6 +101,26 @@ func (s *service) DeleteFile(cmd *DeleteFileCommand) error {
 }
 
 func (s *service) UploadFile(cmd *UploadFileCommand) (*tik_lib.File, error) {
-
+	folderCreateDir := "./videos/"
+	file, err := s.amqpRequests.GetFileById(&tik_lib.GetFileByIdCommand{Id: cmd.Id})
+	if err != nil {
+		return nil, err
+	}
+	videoFolderName := "video_" + file.Id + "/"
+	videoFullPath := folderCreateDir + videoFolderName
+	err = os.Mkdir(videoFullPath, 0700)
+	if err != nil {
+		return nil, err
+	}
+	hlsFolder := videoFullPath + "hls/"
+	err = os.Mkdir(hlsFolder, 0700)
+	if err != nil {
+		return nil, err
+	}
+	filePath := videoFolderName + cmd.Name + "." + cmd.Type
+	err = ioutil.WriteFile(filePath, cmd.File.Bytes(), 0700)
+	if err != nil {
+		return nil, err
+	}
 	return nil, nil
 }

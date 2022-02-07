@@ -206,7 +206,6 @@ func (h *httpEndpoints) MakeUploadFileEndpoint() gin.HandlerFunc {
 			return
 		}
 		fileInfo := strings.Split(header.Filename, ".")
-		fmt.Printf("File name %s\n", fileInfo[0])
 		cmd.Name = fileInfo[0]
 		cmd.Type = fileInfo[1]
 		_, err = io.Copy(buf, file)
@@ -225,7 +224,6 @@ func (h *httpEndpoints) MakeUploadFileEndpoint() gin.HandlerFunc {
 			respondJSON(context.Writer, http.StatusBadRequest, setdata_common.ErrToHttpResponse(err))
 			return
 		}
-		fmt.Println(cmd)
 		respondJSON(context.Writer, http.StatusOK, resp)
 	}
 }

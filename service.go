@@ -106,13 +106,13 @@ func (s *service) UploadFile(cmd *UploadFileCommand) (*tik_lib.File, error) {
 	if err != nil {
 		return nil, err
 	}
-	videoFolderName := "video_" + file.Id + "/"
+	videoFolderName := "video_" + file.Id
 	videoFullPath := folderCreateDir + videoFolderName
 	err = os.Mkdir(videoFullPath, 0700)
 	if err != nil {
 		return nil, err
 	}
-	hlsFolder := videoFullPath + "hls/"
+	hlsFolder := videoFullPath + "/hls/"
 	err = os.Mkdir(hlsFolder, 0700)
 	if err != nil {
 		return nil, err

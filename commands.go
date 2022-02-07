@@ -1,6 +1,9 @@
 package tik_api_lib
 
-import tik_lib "github.com/kirigaikabuto/tik-lib"
+import (
+	"bytes"
+	tik_lib "github.com/kirigaikabuto/tik-lib"
+)
 
 type LoginCommand struct {
 	PhoneNumber string `json:"phone_number"`
@@ -61,4 +64,13 @@ type DeleteFileCommand struct {
 
 func (cmd *DeleteFileCommand) Exec(svc interface{}) (interface{}, error) {
 	return nil, svc.(Service).DeleteFile(cmd)
+}
+
+type UploadFileCommand struct {
+	Id   string        `json:"id"`
+	File *bytes.Buffer `json:"file" form:"file"`
+}
+
+func (cmd *UploadFileCommand) Exec(svc interface{}) (interface{}, error) {
+	return svc.(Service).UploadFile(cmd)
 }

@@ -22,6 +22,7 @@ type Service interface {
 	GetFileById(cmd *GetFileByIdCommand) (*tik_lib.File, error)
 	ListFiles(cmd *ListFilesCommand) ([]tik_lib.File, error)
 	DeleteFile(cmd *DeleteFileCommand) error
+	UploadFile(cmd *UploadFileCommand) (*tik_lib.File, error)
 }
 
 func NewService(amqpRequests AmqpRequests, tknStore auth.TokenStore, s3 S3Uploader) Service {
@@ -95,4 +96,9 @@ func (s *service) ListFiles(cmd *ListFilesCommand) ([]tik_lib.File, error) {
 
 func (s *service) DeleteFile(cmd *DeleteFileCommand) error {
 	return s.amqpRequests.DeleteFile(&tik_lib.DeleteFileCommand{Id: cmd.Id})
+}
+
+func (s *service) UploadFile(cmd *UploadFileCommand) (*tik_lib.File, error) {
+
+	return nil, nil
 }

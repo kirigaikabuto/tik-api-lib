@@ -1,12 +1,15 @@
 package tik_api_lib
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	setdata_common "github.com/kirigaikabuto/setdata-common"
+	"io"
 	"net/http"
+	"strings"
 )
 
 type HttpEndpoints interface {
@@ -18,6 +21,7 @@ type HttpEndpoints interface {
 	MakeGetFileByIdEndpoint() gin.HandlerFunc
 	MakeUpdateFileEndpoint() gin.HandlerFunc
 	MakeDeleteFileEndpoint() gin.HandlerFunc
+	MakeUploadFileEndpoint() gin.HandlerFunc
 }
 
 type httpEndpoints struct {
@@ -177,6 +181,37 @@ func (h *httpEndpoints) MakeDeleteFileEndpoint() gin.HandlerFunc {
 		cmd.Id = fileId
 
 		fmt.Println(cmd.UserId)
+		resp, err := h.ch.ExecCommand(cmd)
+		if err != nil {
+			respondJSON(context.Writer, http.StatusBadRequest, setdata_common.ErrToHttpResponse(err))
+			return
+		}
+		respondJSON(context.Writer, http.StatusOK, resp)
+	}
+}
+
+func (h *httpEndpoints) MakeUploadFileEndpoint() gin.HandlerFunc {
+	return func(context *gin.Context) {
+		cmd := &UploadFileCommand{}
+		buf := bytes.NewBuffer(nil)
+		file, header, err := context.Request.FormFile("file")
+		if err != nil {
+			respondJSON(context.Writer, http.StatusBadRequest, setdata_common.ErrToHttpResponse(err))
+			return
+		}
+		name := strings.Split(header.Filename, ".")
+		fmt.Printf("File name %s\n", name[0])
+		_, err = io.Copy(buf, file)
+		if err != nil {
+			respondJSON(context.Writer, http.StatusBadRequest, setdata_common.ErrToHttpResponse(err))
+			return
+		}
+		err = file.Close()
+		if err != nil {
+			respondJSON(context.Writer, http.StatusBadRequest, setdata_common.ErrToHttpResponse(err))
+			return
+		}
+		cmd.File = buf
 		resp, err := h.ch.ExecCommand(cmd)
 		if err != nil {
 			respondJSON(context.Writer, http.StatusBadRequest, setdata_common.ErrToHttpResponse(err))

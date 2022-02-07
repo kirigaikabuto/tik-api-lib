@@ -6,7 +6,6 @@ import (
 	tik_lib "github.com/kirigaikabuto/tik-lib"
 	"io/ioutil"
 	"os"
-	"strings"
 )
 
 type service struct {
@@ -108,24 +107,24 @@ func (s *service) UploadFile(cmd *UploadFileCommand) (*tik_lib.File, error) {
 		return nil, err
 	}
 	err = os.Mkdir(folderCreateDir, 0700)
-	if err != nil && strings.Contains(err.Error(), "Cannot create a file when that file already exists") {
-		return nil, err
-	}
+	//if err != nil && strings.Contains(err.Error(), "Cannot create a file when that file already exists") {
+	//	return nil, err
+	//}
 	videoFolderName := "video_" + file.Id + "/"
 	videoFullPath := folderCreateDir + videoFolderName
 	err = os.Mkdir(videoFullPath, 0700)
-	if err != nil && !strings.Contains(err.Error(), "Cannot create a file when that file already exists") {
-		return nil, err
-	}
+	//if err != nil && !strings.Contains(err.Error(), "Cannot create a file when that file already exists") {
+	//	return nil, err
+	//}
 	hlsFolder := videoFullPath + "/hls/"
 	err = os.Mkdir(hlsFolder, 0700)
-	if err != nil && !strings.Contains(err.Error(), "Cannot create a file when that file already exists") {
-		return nil, err
-	}
+	//if err != nil && !strings.Contains(err.Error(), "Cannot create a file when that file already exists") {
+	//	return nil, err
+	//}
 	filePath := videoFullPath + cmd.Name + "." + cmd.Type
 	err = ioutil.WriteFile(filePath, cmd.File.Bytes(), 0700)
-	if err != nil && !strings.Contains(err.Error(), "Cannot create a file when that file already exists") {
-		return nil, err
-	}
+	//if err != nil && !strings.Contains(err.Error(), "Cannot create a file when that file already exists") {
+	//	return nil, err
+	//}
 	return nil, nil
 }

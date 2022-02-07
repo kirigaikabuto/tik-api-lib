@@ -9,6 +9,7 @@ import (
 type service struct {
 	amqpRequests AmqpRequests
 	tokenStore   auth.TokenStore
+	s3           S3Uploader
 }
 
 type Service interface {
@@ -23,8 +24,8 @@ type Service interface {
 	DeleteFile(cmd *DeleteFileCommand) error
 }
 
-func NewService(amqpRequests AmqpRequests, tknStore auth.TokenStore) Service {
-	return &service{amqpRequests: amqpRequests, tokenStore: tknStore}
+func NewService(amqpRequests AmqpRequests, tknStore auth.TokenStore, s3 S3Uploader) Service {
+	return &service{amqpRequests: amqpRequests, tokenStore: tknStore, s3: s3}
 }
 
 func (s *service) Login(cmd *LoginCommand) (*auth.TokenDetails, error) {

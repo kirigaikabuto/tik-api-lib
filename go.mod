@@ -3,6 +3,7 @@ module github.com/kirigaikabuto/tik-api-lib
 go 1.13
 
 require (
+	github.com/aws/aws-sdk-go v1.42.47
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/djumanoff/amqp v1.0.6
 	github.com/gin-gonic/gin v1.7.7

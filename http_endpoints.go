@@ -13,6 +13,8 @@ type HttpEndpoints interface {
 	MakeLoginEndpoint() gin.HandlerFunc
 	MakeCreateFileEndpoint() gin.HandlerFunc
 	MakeListFilesEndpoint() gin.HandlerFunc
+	MakeGetFileByIdEndpoint() gin.HandlerFunc
+	MakeUpdateFileEndpoint() gin.HandlerFunc
 }
 
 type httpEndpoints struct {
@@ -72,6 +74,51 @@ func (h *httpEndpoints) MakeListFilesEndpoint() gin.HandlerFunc {
 			respondJSON(context.Writer, http.StatusBadRequest, setdata_common.ErrToHttpResponse(errors.New("no user id in context")))
 			return
 		}
+		cmd.UserId = userIdVal.(string)
+		fmt.Println(cmd.UserId)
+		err := context.ShouldBindJSON(&cmd)
+		if err != nil {
+			respondJSON(context.Writer, http.StatusBadRequest, setdata_common.ErrToHttpResponse(err))
+			return
+		}
+		resp, err := h.ch.ExecCommand(cmd)
+		if err != nil {
+			respondJSON(context.Writer, http.StatusBadRequest, setdata_common.ErrToHttpResponse(err))
+			return
+		}
+		respondJSON(context.Writer, http.StatusOK, resp)
+	}
+}
+
+func (h *httpEndpoints) MakeGetFileByIdEndpoint() gin.HandlerFunc {
+	return func(context *gin.Context) {
+		cmd := &GetFileByIdCommand{}
+		userIdVal, ok := context.Get("user_id")
+		if !ok {
+			respondJSON(context.Writer, http.StatusBadRequest, setdata_common.ErrToHttpResponse(errors.New("no user id in context")))
+			return
+		}
+		cmd.UserId = userIdVal.(string)
+		fmt.Println(cmd.UserId)
+		resp, err := h.ch.ExecCommand(cmd)
+		if err != nil {
+			respondJSON(context.Writer, http.StatusBadRequest, setdata_common.ErrToHttpResponse(err))
+			return
+		}
+		respondJSON(context.Writer, http.StatusOK, resp)
+	}
+}
+
+func (h *httpEndpoints) MakeUpdateFileEndpoint() gin.HandlerFunc {
+	return func(context *gin.Context) {
+		cmd := &UpdateFileCommand{}
+		userIdVal, ok := context.Get("user_id")
+		if !ok {
+			respondJSON(context.Writer, http.StatusBadRequest, setdata_common.ErrToHttpResponse(errors.New("no user id in context")))
+			return
+		}
+		fileId := context.Request.URL.Query().Get("id")
+		cmd.Id = fileId
 		cmd.UserId = userIdVal.(string)
 		fmt.Println(cmd.UserId)
 		resp, err := h.ch.ExecCommand(cmd)

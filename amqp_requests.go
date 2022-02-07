@@ -2,6 +2,7 @@ package tik_api_lib
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/djumanoff/amqp"
 	tik_lib "github.com/kirigaikabuto/tik-lib"
 )
@@ -32,6 +33,7 @@ func (a *AmqpRequests) GetUserByPhoneNumber(cmd *tik_lib.GetUserByPhoneNumberCom
 		return nil, err
 	}
 	resp, err := a.clt.Call(getUserByPhoneNumber, amqp.Message{Body: jsonData})
+	fmt.Println(err)
 	if err != nil {
 		return nil, err
 	}
